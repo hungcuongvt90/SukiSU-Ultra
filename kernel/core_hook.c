@@ -64,10 +64,6 @@
 #include "manual_su.h"
 #endif
 
-#ifdef CONFIG_KPM
-#include "kpm/kpm.h"
-#endif
-
 #ifdef CONFIG_KSU_SUSFS
 bool susfs_is_boot_completed_triggered = false;
 extern u32 susfs_zygote_sid;
@@ -608,18 +604,6 @@ int ksu_handle_prctl(int option, unsigned long arg2, unsigned long arg3,
 
 #ifdef CONFIG_KSU_DEBUG
     pr_info("option: 0x%x, cmd: %ld\n", option, arg2);
-#endif
-
-    #ifdef CONFIG_KPM
-    if(sukisu_is_kpm_control_code(arg2)) {
-        int res;
-
-        pr_info("KPM: calling before arg2=%d\n", (int) arg2);
-        
-        res = sukisu_handle_kpm(arg2, arg3, arg4, arg5);
-
-        return 0;
-    }
 #endif
 
 #ifdef CONFIG_KSU_MANUAL_SU

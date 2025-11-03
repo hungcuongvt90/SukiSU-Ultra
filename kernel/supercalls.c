@@ -542,6 +542,15 @@ static const struct ksu_ioctl_cmd_map ksu_ioctl_handlers[] = {
     { .cmd = KSU_IOCTL_DYNAMIC_MANAGER, .name = "SET_DYNAMIC_MANAGER", .handler = do_dynamic_manager, .perm_check = manager_or_root},
     { .cmd = KSU_IOCTL_GET_MANAGERS, .name = "GET_MANAGERS", .handler = do_get_managers, .perm_check = manager_or_root},
     { .cmd = KSU_IOCTL_ENABLE_UID_SCANNER, .name = "SET_ENABLE_UID_SCANNER", .handler = do_enable_uid_scanner, .perm_check = manager_or_root},
+#ifdef CONFIG_KPM
+    { .cmd = KSU_IOCTL_KPM_LOAD,    .name = "KPM_LOAD",    .handler = do_kpm_load,    .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_UNLOAD,  .name = "KPM_UNLOAD",  .handler = do_kpm_unload,  .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_NUM,     .name = "KPM_NUM",     .handler = do_kpm_num,     .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_LIST,    .name = "KPM_LIST",    .handler = do_kpm_list,    .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_INFO,    .name = "KPM_INFO",    .handler = do_kpm_info,    .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_CONTROL, .name = "KPM_CONTROL", .handler = do_kpm_control, .perm_check = manager_or_root },
+    { .cmd = KSU_IOCTL_KPM_VERSION, .name = "KPM_VERSION", .handler = do_kpm_version, .perm_check = manager_or_root },
+#endif
     { .cmd = 0, .name = NULL, .handler = NULL, .perm_check = NULL} // Sentine
 };
 

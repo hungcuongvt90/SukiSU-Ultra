@@ -1,44 +1,61 @@
 #ifndef ___SUKISU_KPM_H
 #define ___SUKISU_KPM_H
 
-int sukisu_handle_kpm(unsigned long arg2, unsigned long arg3, unsigned long arg4, unsigned long arg5);
-int sukisu_is_kpm_control_code(unsigned long arg2);
+#include <linux/types.h>
 
-// KPM控制代码
-#define CMD_KPM_CONTROL 28
-#define CMD_KPM_CONTROL_MAX 35
+struct ksu_kpm_load_cmd {
+    char path[256];
+    char args[256];
+    __u32 result;
+};
 
-// 控制代码
+struct ksu_kpm_unload_cmd {
+    char name[256];
+    __u32 result;
+};
 
-// prctl(xxx, 28, "PATH", "ARGS")
-// success return 0, error return -N
-#define SUKISU_KPM_LOAD 28
+struct ksu_kpm_num_cmd {
+    __u32 num;
+};
 
-// prctl(xxx, 29, "NAME")
-// success return 0, error return -N
-#define SUKISU_KPM_UNLOAD 29
+struct ksu_kpm_list_cmd {
+    char buffer[256];
+    unsigned int size;
+    __u32 result;
+};
 
-// num = prctl(xxx, 30)
-// error return -N
-// success return +num or 0
-#define SUKISU_KPM_NUM 30
+struct ksu_kpm_info_cmd {
+    char name[256];
+    char buffer[256];
+    __u32 result;
+};
 
-// prctl(xxx, 31, Buffer, BufferSize)
-// success return +out, error return -N
-#define SUKISU_KPM_LIST 31
+struct ksu_kpm_control_cmd {
+    char name[256];
+    char args[256];
+    __u32 result;
+};
 
-// prctl(xxx, 32, "NAME", Buffer[256])
-// success return +out, error return -N
-#define SUKISU_KPM_INFO 32
+struct ksu_kpm_version_cmd {
+    char buffer[256];
+    __u32 result;
+};
 
-// prctl(xxx, 33, "NAME", "ARGS")
-// success return KPM's result value
-// error return -N
-#define SUKISU_KPM_CONTROL 33
+#define KSU_IOCTL_KPM_LOAD    _IOC(_IOC_WRITE, 'K', 200, 0)
+#define KSU_IOCTL_KPM_UNLOAD  _IOC(_IOC_WRITE, 'K', 201, 0)
+#define KSU_IOCTL_KPM_NUM _IOC(_IOC_READ, 'K', 202, 0)
+#define KSU_IOCTL_KPM_LIST    _IOC(_IOC_READ|_IOC_WRITE, 'K', 203, 0)
+#define KSU_IOCTL_KPM_INFO    _IOC(_IOC_READ|_IOC_WRITE, 'K', 204, 0)
+#define KSU_IOCTL_KPM_CONTROL _IOC(_IOC_READ|_IOC_WRITE, 'K', 205, 0)
+#define KSU_IOCTL_KPM_VERSION _IOC(_IOC_READ|_IOC_WRITE, 'K', 206, 0)
 
-// prctl(xxx, 34, buffer, bufferSize)
-// success return KPM's result value
-// error return -N
-#define SUKISU_KPM_VERSION 34
+
+int do_kpm_load(void __user *arg);
+int do_kpm_unload(void __user *arg);
+int do_kpm_num(void __user *arg);
+int do_kpm_list(void __user *arg);
+int do_kpm_info(void __user *arg);
+int do_kpm_control(void __user *arg);
+int do_kpm_version(void __user *arg);
 
 #endif
