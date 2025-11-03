@@ -54,6 +54,7 @@ setup_kernelsu() {
         git checkout "$(git describe --abbrev=0 --tags)" && echo "[-] Checked out latest tag."
     else
         git checkout "$1" && echo "[-] Checked out $1." || echo "[-] Checkout default branch"
+        git switch - 6b62e897ceebd4ba4e112f05e49b8d3219741237
     fi
     cd "$DRIVER_DIR"
     ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$KERNEL_ROOT/KernelSU/kernel")" "kernelsu" && echo "[+] Symlink created."
