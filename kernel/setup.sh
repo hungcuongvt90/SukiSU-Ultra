@@ -41,7 +41,7 @@ setup_kernelsu() {
     echo "[+] Setting up KernelSU..."
     # Clone the repository and rename it to KernelSU
     if [ ! -d "$GKI_ROOT/KernelSU" ]; then
-        git clone https://github.com/SukiSU-Ultra/SukiSU-Ultra SukiSU-Ultra
+        git clone https://github.com/hungcuongvt90/SukiSU-Ultra SukiSU-Ultra
         mv SukiSU-Ultra KernelSU
         echo "[+] Repository cloned and renamed to KernelSU."
     fi
@@ -55,6 +55,8 @@ setup_kernelsu() {
         git checkout "$(git describe --abbrev=0 --tags)" && echo "[-] Checked out latest tag."
     else
         git checkout "$1" && echo "[-] Checked out $1." || echo "[-] Checkout default branch"
+        git checkout 6b62e897ceebd4ba4e112f05e49b8d3219741237
+        echo "Current git hash: $(git rev-parse HEAD)"
     fi
     cd "$DRIVER_DIR"
     ln -sf "$(realpath --relative-to="$DRIVER_DIR" "$GKI_ROOT/KernelSU/kernel")" "kernelsu" && echo "[+] Symlink created."
