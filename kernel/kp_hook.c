@@ -8,12 +8,12 @@
 		.pre_handler = pre,                                            \
 	}
 
-#define DECL_KRP(name, sym, ent, han)                                                \
-	struct kretprobe name = {                                                 \
-		.kp.symbol_name = sym,                                            \
-		.entry_handler = ent,                                            \
-		.handler = han,                                            \
-		.data_size = sizeof(void *),                             \
+#define DECL_KRP(name, sym, ent, han)                                          \
+	struct kretprobe name = {                                              \
+		.kp.symbol_name = sym,                                         \
+		.entry_handler = ent,                                          \
+		.handler = han,                                                \
+		.data_size = sizeof(void *),                                   \
 	}
 
 // ksud.c
@@ -53,7 +53,7 @@ static int sys_read_handler_pre(struct kprobe *p, struct pt_regs *regs)
 }
 
 static int sys_fstat_handler_pre(struct kretprobe_instance *p,
-					struct pt_regs *regs)
+				 struct pt_regs *regs)
 {
 	struct pt_regs *real_regs = PT_REAL_REGS(regs);
 	unsigned int fd = PT_REGS_PARM1(real_regs);
@@ -74,23 +74,27 @@ static int sys_fstat_handler_pre(struct kretprobe_instance *p,
 }
 
 static int sys_fstat_handler_post(struct kretprobe_instance *p,
-					struct pt_regs *regs)
+				  struct pt_regs *regs)
 {
 	void __user *statbuf = *(void **)&p->data;
 	if (statbuf) {
-		void __user *st_size_ptr = statbuf + offsetof(struct stat, st_size);
+		void __user *st_size_ptr =
+			statbuf + offsetof(struct stat, st_size);
 		long size, new_size;
 		if (!copy_from_user_nofault(&size, st_size_ptr, sizeof(long))) {
 			new_size = size + ksu_rc_len;
-			pr_info("adding ksu_rc_len: %ld -> %ld", size, new_size);
-			if (!copy_to_user_nofault(st_size_ptr, &new_size, sizeof(long))) {
+			pr_info("adding ksu_rc_len: %ld -> %ld", size,
+				new_size);
+			if (!copy_to_user_nofault(st_size_ptr, &new_size,
+						  sizeof(long))) {
 				pr_info("added ksu_rc_len");
 			} else {
 				pr_err("add ksu_rc_len failed: statbuf 0x%lx",
-					(unsigned long)st_size_ptr);
+				       (unsigned long)st_size_ptr);
 			}
 		} else {
-			pr_err("read statbuf 0x%lx failed", (unsigned long)st_size_ptr);
+			pr_err("read statbuf 0x%lx failed",
+			       (unsigned long)st_size_ptr);
 		}
 	}
 
@@ -130,6 +134,7 @@ static void do_stop_input_hook(struct work_struct *work)
 
 void kp_handle_ksud_stop(enum ksud_stop_code stop_code)
 {
+#ifndef CONFIG_KSU_SUSFS
 	bool ret;
 	switch (stop_code) {
 	case INIT_RC_HOOK_KP: {
@@ -155,11 +160,13 @@ void kp_handle_ksud_stop(enum ksud_stop_code stop_code)
 	default:
 		return;
 	}
+#endif
 	return;
 }
 
 void kp_handle_ksud_init(void)
 {
+#ifndef CONFIG_KSU_SUSFS
 	int ret;
 
 	ret = register_kprobe(&execve_kp);
@@ -177,14 +184,17 @@ void kp_handle_ksud_init(void)
 	INIT_WORK(&stop_init_rc_hook_work, do_stop_init_rc_hook);
 	INIT_WORK(&stop_execve_hook_work, do_stop_execve_hook);
 	INIT_WORK(&stop_input_hook_work, do_stop_input_hook);
+#endif
 }
 
 void kp_handle_ksud_exit(void)
 {
+#ifndef CONFIG_KSU_SUSFS
 	unregister_kprobe(&execve_kp);
 	// this should be done before unregister sys_read_kp
 	// unregister_kprobe(&sys_read_kp);
 	unregister_kprobe(&input_event_kp);
+#endif
 }
 
 // supercalls.c
